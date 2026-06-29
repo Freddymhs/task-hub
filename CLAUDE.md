@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `task-hub` es una API REST NestJS corriendo en el Mac Mini personal que unifica tareas de Apple Reminders y Todoist en un solo endpoint. Está en producción en `tasks.fmarcos.dev` vía Cloudflare Tunnel y es consumida por una skill de OpenClaw (`~/.openclaw/workspace/skills/task-hub/`) para responder consultas de tareas desde Telegram.
 
+`GET /api/v1/tasks` acepta `?source=todoist|reminders` opcional para filtrar por fuente. Sin el param devuelve todas.
+
 **Estado actual (2026-04-29):**
 
 - ✅ PM2 corriendo en puerto 3002
@@ -72,6 +74,8 @@ NestJS sobre Fastify. Bootstrap en `src/main.ts`: Helmet, CORS, Swagger en `/doc
 - **Todoist API v1**: base URL `https://api.todoist.com/api/v1`. Respuestas paginadas con `{ results: [], next_cursor: string|null }`. La `rest/v2` devuelve 410 Gone.
 - **remindctl**: no tiene flag `--output`. Leer siempre desde stdout del proceso.
 - **Simetría entre fuentes (`ITaskSource`)**: al agregar filtrado en una fuente, verificar que TODAS las implementaciones de la interfaz apliquen el mismo filtro. Un filtro en `RemindersSource` ausente en `TodoistSource` es un bug silencioso.
+- **Decoradores HTTP solo en controllers**: `@Query()`, `@Res()`, `@Body()`, `@Param()` nunca van en services. Los services son injectable puro sin awareness HTTP — reciben valores ya parseados como argumentos normales.
+- **Barrel exports (`index.ts`) sin extensión**: los re-exports en archivos barrel no llevan `.js` ni `.ts` (ej: `export * from './foo'`). La extensión `.js` va en imports directos de módulos, no en barrels.
 
 ## Convenciones específicas
 

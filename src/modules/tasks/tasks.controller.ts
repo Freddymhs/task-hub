@@ -1,9 +1,9 @@
-import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { FastifyReply } from 'fastify';
 import { TasksService } from './tasks.service.js';
-import { UnifiedTaskDto } from './dto/index.js';
+import { GetTaskQueryDto, UnifiedTaskDto } from './dto/index.js';
 
 @ApiTags('Tasks')
 @SkipThrottle()
@@ -18,8 +18,8 @@ export class TasksController {
     description: 'List of tasks',
     type: [UnifiedTaskDto],
   })
-  async getTasks(@Res() reply: FastifyReply) {
-    const tasks = this.tasksService.getTasks();
+  async getTasks(@Query() query: GetTaskQueryDto, @Res() reply: FastifyReply) {
+    const tasks = this.tasksService.getTasks(query.source);
     await reply.status(HttpStatus.OK).send(tasks);
   }
 
